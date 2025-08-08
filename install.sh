@@ -28,8 +28,18 @@ install_singbox() {
     return
   fi
   log "下载安装 sing-box..."
-  local url="https://github.com/SagerNet/sing-box/releases/latest/download/sing-box-linux-amd64.tar.gz"
-  curl -fsSL "$url" -o /tmp/singbox.tar.gz
+
+  latest_version=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest | jq -r '.tag_name')
+  if [ -z "$latest_version" ] || [ "$latest_version" = "null" ]; then
+    echo "获取 sing-box 最新版本失败"
+    exit 1
+  fi
+
+  url="https://github.com/SagerNet/sing-box/releases/download/${latest_version}/sing-box-linux-amd64-${latest_version}.tar.gz"
+  curl -fsSL "$url" -o /tmp/singbox.tar.gz || {
+    echo "下载 sing-box 失败，检查链接或网络"
+    exit 1
+  }
   tar -C /tmp -xzf /tmp/singbox.tar.gz
   mv /tmp/sing-box "$SINGBOX_BIN"
   chmod +x "$SINGBOX_BIN"
