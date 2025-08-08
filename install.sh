@@ -29,15 +29,15 @@ install_singbox() {
   fi
   log "下载安装 sing-box..."
 
-  latest_version=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest | jq -r '.tag_name')
-  if [ -z "$latest_version" ] || [ "$latest_version" = "null" ]; then
-    echo "获取 sing-box 最新版本失败"
+  assets_json=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases/latest")
+  download_url=$(echo "$assets_json" | jq -r '.assets[] | select(.name | test("linux-amd64.*\\.tar\\.gz$")) | .browser_download_url' | head -n 1)
+
+  if [ -z "$download_url" ] || [ "$download_url" = "null" ]; then
+    echo "获取 sing-box 下载链接失败"
     exit 1
   fi
 
-  # 直接用带v版本号，文件名里也带v
-  url="https://github.com/SagerNet/sing-box/releases/download/${latest_version}/sing-box-linux-amd64-${latest_version}.tar.gz"
-  curl -fsSL "$url" -o /tmp/singbox.tar.gz || {
+  curl -fsSL "$download_url" -o /tmp/singbox.tar.gz || {
     echo "下载 sing-box 失败，检查链接或网络"
     exit 1
   }
