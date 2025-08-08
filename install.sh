@@ -29,13 +29,13 @@ install_singbox() {
   fi
   log "下载安装 sing-box..."
 
-  assets_json=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases/latest")
-  download_url=$(echo "$assets_json" | jq -r '.assets[] | select(.name | test("linux-amd64.*\\.tar\\.gz$")) | .browser_download_url' | head -n 1)
+  # 自动获取最新版本号
+  latest_tag=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest | jq -r '.tag_name')
+  # 自动构建下载链接
+  download_url="https://github.com/SagerNet/sing-box/releases/download/${latest_tag}/sing-box-${latest_tag#v}-linux-amd64.tar.gz"
 
-  if [ -z "$download_url" ] || [ "$download_url" = "null" ]; then
-    echo "获取 sing-box 下载链接失败"
-    exit 1
-  fi
+  log "最新版本: $latest_tag"
+  log "下载链接: $download_url"
 
   curl -fsSL "$download_url" -o /tmp/singbox.tar.gz || {
     echo "下载 sing-box 失败，检查链接或网络"
