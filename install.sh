@@ -29,9 +29,7 @@ install_singbox() {
   fi
   log "下载安装 sing-box..."
 
-  # 自动获取最新版本号
   latest_tag=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest | jq -r '.tag_name')
-  # 自动构建下载链接
   download_url="https://github.com/SagerNet/sing-box/releases/download/${latest_tag}/sing-box-${latest_tag#v}-linux-amd64.tar.gz"
 
   log "最新版本: $latest_tag"
@@ -42,8 +40,9 @@ install_singbox() {
     exit 1
   }
   tar -C /tmp -xzf /tmp/singbox.tar.gz
-  mv /tmp/sing-box "$SINGBOX_BIN"
+  mv /tmp/sing-box-${latest_tag#v}-linux-amd64/sing-box "$SINGBOX_BIN"
   chmod +x "$SINGBOX_BIN"
+  rm -rf /tmp/sing-box-${latest_tag#v}-linux-amd64 /tmp/singbox.tar.gz
 }
 
 generate_reality_keypair() {
